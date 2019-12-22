@@ -262,6 +262,12 @@ Start              End                Offset             Perm Path
 gef➤  
 ```
 
+Also if you want, here is a writeup where I used this tool to help solve a ctf challenge:
+
+```
+https://github.com/guyinatuxedo/nightmare/tree/master/modules/08-bof_dynamic/utc19_shellme
+```
+
 ## Misc
 
 If anyone has any suggestions for this tool, this is probably the best place to reach me:
