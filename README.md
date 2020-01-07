@@ -7,7 +7,7 @@ Have you ever been in a ctf, and thought `If only I knew what libc version was r
 This tool is based off of some already existing tools. The main reason why I made it, is so I could just easily call a single function from within my exploit, and it would handle the rest of the work for me.
 
 ```
-https://github.com/david942j/one_gadget
+https://github.com/niklasb/libc-database
 https://libc.blukat.me/
 ```
 
