@@ -2,7 +2,8 @@
 
 import os
 
-INSTALL_DIRECTORY = "/Hackery/TheNight/"
+INSTALL_DIRECTORY = ""
+
 def symbol_type_check(inp_symbol):
 	"""Check/Convert the symbol type for/to str"""
 	if isinstance(inp_symbol, str):
@@ -66,4 +67,3 @@ def find_libc_version(symbol_0: str, addr_0: int, symbol_1: str, addr_1: int):
 		libc_offset = look_libc_offset(symbol_0, symbol_1, i)
 		if libc_offset == addr_offset:
 			print("Possible libc: %s" % i)
-

