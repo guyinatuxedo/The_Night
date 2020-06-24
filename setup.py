@@ -294,11 +294,20 @@ def parse_symbols():
 
 def write_install_dir():
 	install_dir = os.getcwd()
-	thenight_file = open("thenight.py", "r")
+
+	# Read the code file
+	thenight_file = open("the_night/thenight.py", "r")
 	thenight_code = thenight_file.readlines()
+	thenight_file.close()
+
+	# Write the install directory
 	thenight_code[4] = 'INSTALL_DIRECTORY = "%s/"' % install_dir
 
-	print(thenight_code)
+	# Write the code file
+	thenight_write_file = open("the_night/thenight.py", "w")
+	thenight_write_file.writelines(thenight_code)
+	thenight_write_file.close()
+
 
 # Copy TheNight.py over to the local python libraries directory, and edit TheNight.py to point to the install directory, which is the directory this file is ran in
 def install_the_night():
@@ -308,12 +317,12 @@ def install_the_night():
 		description="A utillity for identyfing remote libcs",
 		url="https://github.com/guyinatuxedo/itl",
 		author="guyinatuxedo",
-		packages=["thenight"]
+		packages=["the_night"]
 	)
 	
 if __name__ == "__main__":
 	#make_directories()
 	#grab_libcs()
 	#parse_symbols()
-	#install_the_night()
 	write_install_dir()
+	#install_the_night()
