@@ -304,7 +304,7 @@ def write_install_dir():
 	thenight_code[4] = 'INSTALL_DIRECTORY = "%s/"\n' % install_dir
 
 	# Write the code file
-	thenight_write_file = open("the_night/thenight.py", "w")
+	thenight_write_file = open("thenight/thenight.py", "w")
 	thenight_write_file.writelines(thenight_code)
 	thenight_write_file.close()
 
@@ -312,7 +312,7 @@ def write_install_dir():
 
 	
 if __name__ == "__main__":
-	make_directories()
-	grab_libcs()
-	parse_symbols()
+	#make_directories()
+	#grab_libcs()
+	#parse_symbols()
 	write_install_dir()
