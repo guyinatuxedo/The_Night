@@ -312,7 +312,7 @@ def write_install_dir():
 
 	
 if __name__ == "__main__":
-	#make_directories()
-	#grab_libcs()
-	#parse_symbols()
+	make_directories()
+	grab_libcs()
+	parse_symbols()
 	write_install_dir()
