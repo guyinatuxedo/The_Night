@@ -321,8 +321,8 @@ def install_the_night():
 	)
 	
 if __name__ == "__main__":
-	#make_directories()
-	#grab_libcs()
-	#parse_symbols()
+	make_directories()
+	grab_libcs()
+	parse_symbols()
 	write_install_dir()
-	#install_the_night()
+	install_the_night()

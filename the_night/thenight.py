@@ -2,8 +2,7 @@
 
 import os
 
-INSTALL_DIRECTORY = ""
-
+INSTALL_DIRECTORY = "/Hackery/TheNight/"
 def symbol_type_check(inp_symbol):
 	"""Check/Convert the symbol type for/to str"""
 	if isinstance(inp_symbol, str):
