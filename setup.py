@@ -1,8 +1,7 @@
 import os
-import re
-import sys
-import shutil
 import requests
+import zstandard
+from setuptools import setup, find_packages
 
 # The list of libc versions we are going to download
 libcList = [ "libc6-amd64_2.10.1-0ubuntu15_i386",
@@ -251,65 +250,70 @@ libcList = [ "libc6-amd64_2.10.1-0ubuntu15_i386",
 "libc6_2.9-4ubuntu6_i386"]
 
 # A function to ensure the directories we need are installed
-def makeDirectories():
-    if os.path.isdir("libcs") == False:
-        os.mkdir("libcs")
-    if os.path.isdir("symbols") == False:
-        os.mkdir("symbols")
+def make_directories():
+	if os.path.isdir("libcs") == False:
+		os.mkdir("libcs")
+	if os.path.isdir("symbols") == False:
+		os.mkdir("symbols")
 
 # Download all of the libcs from https://libc.blukat.me
-def grabLibcs():
-    for i in libcList:
+def grab_libcs():
+	decompressor = zstandard.ZstdDecompressor()
+	for i in libcList:
 		i += ".so"
-		print "Downloading: " + i
+		print("Downloading: %s" % i)
 		try:
-			url = "https://libc.blukat.me/d/" + i
-			libcData = requests.get(url).content
-			file = open("libcs/" + i, "w")
-			file.write(libcData)
+			url = "https://github.com/monik3r/libcFun/raw/master/libcs_compressed/%s.zst" % i
+			libc_data = requests.get(url).content
+			file = open("libcs/%s" % i, "wb")
+			decompressed_libc = decompressor.decompress(libc_data)
+			file.write(decompressed_libc)
 			file.close()
 		except:
-			print "Could not download: " + i
+			print("Could not download: %s" % i)
 
 # Parse the symbols out from the libcs using readelf
-def parseSymbols():
-    for libc in libcList:
-	print "parsing: " + libc
-	libc += ".so"
-	cmd = "readelf -Ws libcs/" + libc
-	symbols = os.popen(cmd).read()
-	symbols = symbols.split('\n')
-	symbols = symbols[3:]
-	formattedSymbols = []
-	for i in symbols:
-		parsed = ' '.join(i.split()).split(' ')
-		if len(parsed) > 7:
-			symbol = parsed[7].split("@@")[0] + " " + parsed[1]
-			formattedSymbols.append(symbol)
-	print "symbols/output-symbols-" + libc
-	file  = open("symbols/output-symbols-" + libc, "w")
-	file .write('\n'.join(formattedSymbols))
-	file .close()
+def parse_symbols():
+	for libc in libcList:
+		print("parsing: %s" % libc)
+		libc += ".so"
+		cmd = "readelf -Ws libcs/" + libc
+		symbols = os.popen(cmd).read()
+		symbols = symbols.split('\n')
+		symbols = symbols[3:]
+		formatted_symbols = []
+		for i in symbols:
+			parsed = ' '.join(i.split()).split(' ')
+			if len(parsed) > 7:
+				symbol = parsed[7].split("@@")[0] + " " + parsed[1]
+				formatted_symbols.append(symbol)
+		print("symbols/output-symbols-%s" % libc)
+		file  = open("symbols/output-symbols-" + libc, "w")
+		file .write('\n'.join(formatted_symbols))
+		file .close()
+
+def write_install_dir():
+	install_dir = os.getcwd()
+	thenight_file = open("thenight.py", "r")
+	thenight_code = thenight_file.readlines()
+	thenight_code[4] = 'INSTALL_DIRECTORY = "%s/"' % install_dir
+
+	print(thenight_code)
 
 # Copy TheNight.py over to the local python libraries directory, and edit TheNight.py to point to the install directory, which is the directory this file is ran in
-def installTheNight():
-    installDirectory = os.getcwd()
-    pythonLibrariesDirectory = sys.path[1]
-    print "Installing to: " + pythonLibrariesDirectory + "/TheNight.py"
-
-    nightIn = open("TheNight.py", "r")
-    nightOut = open(pythonLibrariesDirectory + "/TheNight.py", "w")
-
-
-    for line in nightIn:
-        nightOut.write(line.replace('installDirectory', '"' + installDirectory +'/"'))
-
-    nightIn.close()
-    nightOut.close()
-
-    
+def install_the_night():
+	setup(
+		name="thenight",
+		version="0.1",
+		description="A utillity for identyfing remote libcs",
+		url="https://github.com/guyinatuxedo/itl",
+		author="guyinatuxedo",
+		packages=["thenight"]
+	)
+	
 if __name__ == "__main__":
-    makeDirectories()
-    grabLibcs()
-    parseSymbols()
-    installTheNight()
+	#make_directories()
+	#grab_libcs()
+	#parse_symbols()
+	#install_the_night()
+	write_install_dir()
