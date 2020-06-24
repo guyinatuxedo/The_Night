@@ -296,7 +296,7 @@ def write_install_dir():
 	install_dir = os.getcwd()
 
 	# Read the code file
-	thenight_file = open("the_night/thenight.py", "r")
+	thenight_file = open("thenight/thenight.py", "r")
 	thenight_code = thenight_file.readlines()
 	thenight_file.close()
 
