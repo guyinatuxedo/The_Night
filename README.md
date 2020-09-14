@@ -26,9 +26,9 @@ First you import `TheNight`:
 import TheNight
 ```
 
-Then after that, you just call `TheNight.findLibcVersion`:
+Then after that, you just call `thenight.find_libc_version`:
 ```
-TheNight.findLibcVersion("puts", putsLibc, "gets", getsLibc)
+Thenight.find_libc_version("puts", putsLibc, "gets", getsLibc)
 ```
 
 It takes four arguments. The first one is the name of the first symbol you have a leak for. The second argument is the actual address for the symbol. The third is the name of the second symbol you have a leak for. The fourth is the libc address for that symbol.
