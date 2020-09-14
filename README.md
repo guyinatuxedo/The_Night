@@ -21,14 +21,14 @@ To go a bit more into detail, during the setup it will scrape a bunch of libcs f
 
 ## How Do I Use This?
 
-First you import `TheNight`:
+First you import `thenight`:
 ```
-import TheNight
+import thenight
 ```
 
 Then after that, you just call `thenight.find_libc_version`:
 ```
-Thenight.find_libc_version("puts", putsLibc, "gets", getsLibc)
+thenight.find_libc_version("puts", putsLibc, "gets", getsLibc)
 ```
 
 It takes four arguments. The first one is the name of the first symbol you have a leak for. The second argument is the actual address for the symbol. The third is the name of the second symbol you have a leak for. The fourth is the libc address for that symbol.
