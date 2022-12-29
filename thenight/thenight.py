@@ -40,7 +40,7 @@ def look_libc_offset(symbol_0: str, symbol_1: str, file: str) -> int:
 	if symbol_0_found == symbol_1_found == True:
 		offset = offset_0 - offset_1
 
-	return offset
+	return offset, offset_0
 
 def find_libc_version(symbol_0: str, addr_0: int, symbol_1: str, addr_1: int):
 	"""Find the all the possible libc matches"""
@@ -65,9 +65,15 @@ def find_libc_version(symbol_0: str, addr_0: int, symbol_1: str, addr_1: int):
 	# Checking to see which ones are possible matches
 	files = os.listdir(INSTALL_DIRECTORY + "symbols/")
 	for i in files:
-		libc_offset = look_libc_offset(symbol_0, symbol_1, i)
+		libc_offset, symbol0_offset = look_libc_offset(symbol_0, symbol_1, i)
 		if libc_offset == addr_offset:
-			print("Possible libc: %s" % i)
+			base = addr_0 - symbol0_offset
+
+			# If the libc base is page aligned, we have a good match
+			if base % 0x1000 == 0:
+				print("Good match: base 0x%X for %s" % (base, i))
+			else:
+				print("Poor match: base 0x%X for %s" % (base, i))
 
 def find_libc_version_automated(symbol_0: str, addr_0: int, symbol_1: str, addr_1: int):
 	"""Find the all the possible libc matches"""
